@@ -16,18 +16,40 @@ app.get("/", (req, res) => {
     <html>
       <head>
         <meta charset="utf-8"/>
-        <title>Express on Vercel</title>
+        <title>X402 Express Server</title>
         <link rel="stylesheet" href="/style.css" />
       </head>
       <body>
         <nav>
           <a href="/">Home</a>
           <a href="/about">About</a>
-          <a href="/api-data">API Data</a>
+          <a href="/api">API</a>
           <a href="/healthz">Health</a>
         </nav>
-        <h1>Welcome to Express on Vercel 🚀</h1>
-        <p>This is a minimal example without a database or forms.</p>
+        <h1>X402 Express Server and Client</h1>
+        <p>This project demonstrates how to use X402 payment system with Express.js, allowing API endpoints to charge for access using Solana USDC payments.</p>
+        
+        <h2>What is X402?</h2>
+        <p>X402 is a payment protocol that enables API endpoints to automatically charge clients for access. Payments are processed on the Solana blockchain using USDC.</p>
+        
+        <h2>Features</h2>
+        <ul>
+          <li><strong>Protected API Routes:</strong> Endpoints that require payment to access</li>
+          <li><strong>Automatic Payment Processing:</strong> Clients automatically pay when calling protected endpoints</li>
+          <li><strong>Solana Integration:</strong> Payments processed on Solana using USDC</li>
+          <li><strong>Configurable Settings:</strong> Customize payment amounts, network, and payment address</li>
+        </ul>
+        
+        <h2>Quick Start</h2>
+        <p>Try the protected endpoint:</p>
+        <ul>
+          <li><a href="/api">API Base</a> - Check API status</li>
+          <li><a href="/api/protected">Protected Endpoint</a> - Requires payment (100 USDC)</li>
+        </ul>
+        
+        <h2>Usage</h2>
+        <p>For detailed setup and usage instructions, see the <a href="/about">About</a> page or check the <a href="https://github.com/v1xingyue/x402-express" target="_blank">GitHub repository</a>.</p>
+        
         <img src="/logo.png" alt="Logo" width="120" />
       </body>
     </html>
