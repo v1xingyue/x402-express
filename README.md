@@ -11,6 +11,7 @@ X402 is a payment protocol that enables API endpoints to automatically charge cl
 - **Server** (`src/index.ts`): Express.js server with X402-protected API routes
 - **Client** (`src/client.ts`): Example client that automatically pays when calling protected endpoints
 - **Routes** (`src/routes/index.ts`): API routes with X402 payment middleware
+- **Config** (`src/config.ts`): Centralized configuration for payment settings (network, asset, amount, payment address)
 
 ## Server
 
@@ -26,9 +27,16 @@ The `/api/protected` endpoint requires a payment of **100 USDC** to access. It u
 vercel dev
 ```
 
-### Environment Variables
+### Configuration
+
+Payment configuration is centralized in `src/config.ts`. The following environment variables can be set to customize the payment settings:
 
 - `PAY_TO_ADDRESS`: Solana address to receive payments (defaults to a test address)
+- `NETWORK`: Solana network (defaults to `"mainnet-beta"`)
+- `ASSET`: Token asset to use for payments (defaults to `"USDC"`)
+- `AMOUNT`: Payment amount per request (defaults to `"100"`)
+
+All configuration values can be overridden via environment variables or edited directly in `src/config.ts`.
 
 ## Client
 
@@ -68,12 +76,13 @@ The client will:
 
 ## X402 Usage
 
-X402 middleware is configured in the server routes:
+X402 middleware is configured using centralized settings in `src/config.ts`:
 
-- **Network**: Solana mainnet-beta
-- **Asset**: USDC
-- **Amount**: 100 USDC per request
-- **Facilitator**: Handles payment verification
+- **Network**: Solana mainnet-beta (configurable via `NETWORK` env var or `src/config.ts`)
+- **Asset**: USDC (configurable via `ASSET` env var or `src/config.ts`)
+- **Amount**: 100 USDC per request (configurable via `AMOUNT` env var or `src/config.ts`)
+- **Payment Address**: Set via `PAY_TO_ADDRESS` env var or `src/config.ts`
+- **Facilitator**: Handles payment verification at `https://facilitator.corbits.io`
 
 The middleware automatically:
 - Validates incoming payment signatures
@@ -101,6 +110,7 @@ Deploy your own instance of this project to Vercel with one click:
 3. **Set environment variables in Vercel:**
    - Go to Project Settings → Environment Variables
    - Add `PAY_TO_ADDRESS` with your Solana address to receive payments
+   - Optionally set `NETWORK`, `ASSET`, and `AMOUNT` to customize payment settings
    - The client-side variables (`SECRET_KEY`, `PROXY_URL`) are only needed for local client development
 
 4. **Deploy:**
@@ -134,6 +144,9 @@ cp .env.example .env
      # The format should be: [123,45,67,...] (array of 64 numbers)
      ```
    - **PAY_TO_ADDRESS**: Your Solana address to receive payments (get USDC test tokens from [Circle Faucet](https://faucet.circle.com/))
+   - **NETWORK** (optional): Solana network - defaults to `"mainnet-beta"` (also configurable in `src/config.ts`)
+   - **ASSET** (optional): Token asset for payments - defaults to `"USDC"` (also configurable in `src/config.ts`)
+   - **AMOUNT** (optional): Payment amount per request - defaults to `"100"` (also configurable in `src/config.ts`)
    - **PROXY_URL** (optional): Set if you need to use a proxy for requests
 
 4. **Run the server:**
@@ -154,7 +167,17 @@ pnpm run client
 To add additional protected routes with X402 payment, follow this pattern in `src/routes/index.ts`:
 
 ```typescript
-// Define payment requirement
+import { payToAddress, network, asset, amount } from "../config.js";
+
+// Option 1: Use default config values
+const defaultExtract = solana.x402Exact({
+  network: network as Network,
+  asset: asset as Asset,
+  amount: amount,
+  payTo: payToAddress,
+});
+
+// Option 2: Create custom payment requirement
 const customExtract = solana.x402Exact({
   network: "mainnet-beta",
   asset: "USDC",
@@ -175,11 +198,28 @@ router.get(
 );
 ```
 
-### Customizing Payment Amounts
+### Customizing Payment Settings
 
-Edit the `amount` field in `solana.x402Exact()` to change the required payment:
-- Current default: `"100"` USDC
-- Amounts are specified as strings (e.g., `"50"`, `"1000"`)
+Payment configuration is centralized in `src/config.ts`. You can customize:
+
+1. **Via Environment Variables** (recommended for deployments):
+   ```bash
+   NETWORK=mainnet-beta
+   ASSET=USDC
+   AMOUNT=100
+   PAY_TO_ADDRESS=YourSolanaAddressHere
+   ```
+
+2. **Directly in `src/config.ts`**:
+   ```typescript
+   export const amount = process.env.AMOUNT || "100";  // Change default here
+   export const asset = process.env.ASSET || "USDC";   // Change asset here
+   export const network = process.env.NETWORK || "mainnet-beta";  // Change network here
+   ```
+
+- **Amount**: Default is `"100"` USDC. Amounts are specified as strings (e.g., `"50"`, `"1000"`)
+- **Asset**: Currently set to `"USDC"`. Can be changed to other supported SPL tokens
+- **Network**: Currently `"mainnet-beta"`. Can be changed to `"devnet"` for testing
 
 ### Development Workflow
 

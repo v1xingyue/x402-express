@@ -2,6 +2,8 @@ import { Router, Request, Response } from "express";
 import { express as middleware } from "@faremeter/middleware";
 import { solana } from "@faremeter/info";
 import { PublicKey } from "@solana/web3.js";
+import { payToAddress, network, asset, amount } from "../config.js";
+import { Network, Asset } from "../types.d.js";
 
 const router: Router = Router();
 
@@ -16,13 +18,6 @@ const router: Router = Router();
     });
   });
 
-  // get faucet : https://faucet.circle.com/
-  // Note: payTo must be a valid Solana address (base58 encoded)
-  // You can set PAY_TO_ADDRESS in .env file, or use the default test address
-  const payToAddress =
-    process.env.PAY_TO_ADDRESS ||
-    "Dy6mBH4YeqJCRZohd39iSFaf4jyLaxPeBakbZwt1jToL";
-
   // Validate the address format
   try {
     new PublicKey(payToAddress);
@@ -34,9 +29,9 @@ const router: Router = Router();
   }
 
   const usdcExtract = solana.x402Exact({
-    network: "mainnet-beta",
-    asset: "USDC",
-    amount: "100",
+    network: network as Network,
+    asset: asset as Asset,
+    amount: amount as string,
     payTo: payToAddress,
   });
 
@@ -59,10 +54,6 @@ const router: Router = Router();
       });
     }
   );
-
-  // Add more routes here
-  // router.use('/users', userRoutes);
-  // router.use('/posts', postRoutes);
 })();
 
 export default router;

@@ -9,6 +9,8 @@ import { wrap } from "@faremeter/fetch";
 import { solana } from "@faremeter/info";
 import dotenv from "dotenv";
 import { ProxyAgent, setGlobalDispatcher } from "undici";
+import { Network, Asset } from "./types.d.js";
+import { asset } from "./config.js";
 dotenv.config();
 
 const proxy = process.env.PROXY_URL;
@@ -24,14 +26,17 @@ const keypair = Keypair.fromSecretKey(Uint8Array.from(keypairData));
 
 console.log(`current address ${keypair.publicKey.toBase58()}`);
 
-const network = "mainnet-beta";
+const network = process.env.NETWORK || "mainnet-beta";
 const connection = new Connection("https://api.mainnet-beta.solana.com");
-const usdcInfo = solana.lookupKnownSPLToken(network, "USDC");
-if (!usdcInfo) {
-  throw new Error("USDC info not found");
+const tokenInfo = solana.lookupKnownSPLToken(
+  network as Network,
+  asset as Asset
+);
+if (!tokenInfo) {
+  throw new Error(`${asset} info not found`);
 }
-const usdcMint = new PublicKey(usdcInfo.address);
-console.log(`USDC mint address ${usdcMint.toBase58()}`);
+const tokenMint = new PublicKey(tokenInfo.address);
+console.log(`token mint address ${tokenMint.toBase58()}`);
 
 // Create wallet interface
 const wallet = {
@@ -47,7 +52,7 @@ const main = async () => {
   // Setup payment handler
   const handler = solanaExact.createPaymentHandler(
     wallet,
-    usdcMint,
+    tokenMint,
     connection
   );
   const fetchWithPayer = wrap(fetch, { handlers: [handler] });
