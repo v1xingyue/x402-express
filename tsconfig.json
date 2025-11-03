@@ -7,5 +7,9 @@
     "rootDir": ".",
     "esModuleInterop": true,
     "skipLibCheck": true
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   }
 }

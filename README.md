@@ -95,7 +95,7 @@ The middleware automatically:
 
 Deploy your own instance of this project to Vercel with one click:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/x402-express)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/v1xingyue/x402-express)
 
 > **Note:** Replace `your-username/x402-express` with your repository URL if deploying from your own fork.
 
