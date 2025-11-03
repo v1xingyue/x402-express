@@ -8,7 +8,15 @@ import { exact as solanaExact } from "@faremeter/payment-solana";
 import { wrap } from "@faremeter/fetch";
 import { solana } from "@faremeter/info";
 import dotenv from "dotenv";
+import { ProxyAgent, setGlobalDispatcher } from "undici";
 dotenv.config();
+
+const proxy = process.env.PROXY_URL;
+if (proxy) {
+  console.log(`using proxy ${proxy}`);
+  const proxyAgent = new ProxyAgent(proxy);
+  setGlobalDispatcher(proxyAgent);
+}
 
 // Load keypair from file
 const keypairData = JSON.parse(process.env.SECRET_KEY as string);
@@ -43,6 +51,7 @@ const main = async () => {
     connection
   );
   const fetchWithPayer = wrap(fetch, { handlers: [handler] });
+  // const fetchWithoutPayer = fetch;
 
   // // Call the API - payment happens automatically
   // const response = await fetchWithPayer("https://helius.api.corbits.dev", {
@@ -57,7 +66,10 @@ const main = async () => {
 
   const response = await fetchWithPayer(
     "https://x402-express.vercel.app/api/protected"
-  );
+  ).catch((error) => {
+    console.error(error);
+    return null;
+  });
 
   const data = await response.json();
   console.log(data);
